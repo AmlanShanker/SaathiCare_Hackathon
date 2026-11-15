@@ -14,7 +14,7 @@ function response() {
 
 const request = (overrides = {}) => ({
   method: 'POST',
-  headers: { origin: 'https://saathicare-five.vercel.app', 'x-forwarded-for': `192.0.2.${Math.floor(Math.random() * 200) + 1}` },
+  headers: { origin: 'https://saathicare-five.vercel.app', 'x-forwarded-for': '192.0.2.10' },
   body: { to: ['family@example.com'], subject: 'Reminder', text: 'Please check in.' },
   ...overrides
 })
