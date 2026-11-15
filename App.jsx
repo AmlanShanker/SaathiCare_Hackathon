@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { buildDoseSchedule, getDoseStatus, calculateAdherence, getDaysLeft, getVitalFlag, validateMedicationTimes } from './careLogic.js'
 
 /* ---------- helpers ---------- */
 const pad = n => String(n).padStart(2, '0')
@@ -14,7 +15,7 @@ const RN = { elder: 'Elder', family: 'Family', caretaker: 'Caretaker' }
 const PILL = { white: '#E9EDF2', pink: '#F28DA6', yellow: '#F5C84C', blue: '#5B9BE8', green: '#58B77C', orange: '#F08A3C' }
 const VK = { bp: { n: 'Blood pressure', u: 'mmHg' }, sugar: { n: 'Blood sugar', u: 'mg/dL' }, pulse: { n: 'Pulse', u: 'bpm' }, weight: { n: 'Weight', u: 'kg' } }
 const fmtV = v => v.kind === 'bp' ? `${v.a}/${v.b}` : v.a
-const flag = (k, a, b) => k === 'bp' ? (a >= 140 || b >= 90 ? 'High' : a < 90 ? 'Low' : '') : k === 'sugar' ? (a > 180 ? 'High' : a < 70 ? 'Low' : '') : k === 'pulse' ? (a > 110 ? 'High' : a < 50 ? 'Low' : '') : ''
+const flag = getVitalFlag
 const T = {
   en: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening', took: 'I took it', snooze: 'Remind me in 15 min', aloud: 'Read aloud', sos: 'SOS: I need help', today: 'Today', meds: 'Medicines', health: 'Health', visits: 'Visits', ask: 'Ask', overview: 'Overview', circle: 'Circle', feel: 'How are you feeling today?', good: 'Good', okay: 'Okay', bad: 'Not well', next: 'Next dose', done: 'All doses done for today', taken: 'doses taken today', gotit: 'Got it' },
   hi: { morning: 'सुप्रभात', afternoon: 'नमस्कार', evening: 'शुभ संध्या', took: 'मैंने दवा ले ली', snooze: '15 मिनट बाद याद दिलाएँ', aloud: 'पढ़कर सुनाएँ', sos: 'एसओएस: मदद चाहिए', today: 'आज', meds: 'दवाइयाँ', health: 'सेहत', visits: 'डॉक्टर', ask: 'पूछें', overview: 'सारांश', circle: 'परिवार', feel: 'आज आप कैसा महसूस कर रहे हैं?', good: 'अच्छा', okay: 'ठीक', bad: 'तबियत ठीक नहीं', next: 'अगली दवा', done: 'आज की सभी दवाइयाँ हो गईं', taken: 'दवाइयाँ ली गईं', gotit: 'समझ गया' },
@@ -36,10 +37,19 @@ function seed() {
     appts: [{ id: 'a1', doctor: 'Dr. Rao (Cardiologist)', date: ago(-3), time: '11:30', place: 'Manipal Hospital, Bengaluru', notes: 'Carry the BP diary' }],
     vitals: [], checkins: [], msgs: [], log: [], outbox: [], activity: [], sent: [],
   }
-  const r = (a, b) => a + Math.round(Math.random() * (b - a))
+  const bp = [[128,82],[132,84],[136,86],[130,80],[138,88],[134,84],[129,82]]
+  const sugar = [112,126,118,142,121,116,124]
+  const pulse = [72,74,76,70,78,73,72]
   for (let i = 6; i >= 0; i--) {
-    c.meds.forEach(m => m.times.forEach(t => { if (i > 0 && Math.random() > 0.2) c.log.push({ key: `${m.id}|${ago(i)}|${t}`, status: 'taken', by: 'elder' }) }))
-    c.vitals.push({ id: 'vb' + i, date: ago(i), kind: 'bp', a: r(126, 148), b: r(78, 92) }, { id: 'vs' + i, date: ago(i), kind: 'sugar', a: r(105, 170) }, { id: 'vp' + i, date: ago(i), kind: 'pulse', a: r(68, 82) })
+    c.meds.forEach(m => m.times.forEach(t => {
+      if (i > 0 && !(i === 2 && m.id === 'm2')) c.log.push({ key: `${m.id}|${ago(i)}|${t}`, status: 'taken', by: 'elder' })
+    }))
+    const index = 6 - i
+    c.vitals.push(
+      { id: 'vb' + i, date: ago(i), kind: 'bp', a: bp[index][0], b: bp[index][1] },
+      { id: 'vs' + i, date: ago(i), kind: 'sugar', a: sugar[index] },
+      { id: 'vp' + i, date: ago(i), kind: 'pulse', a: pulse[index] }
+    )
   }
   const d = dstr(new Date())
   c.meds.forEach(m => m.times.forEach(t => { if (tm(t) + 30 < nowM()) c.log.push({ key: `${m.id}|${d}|${t}`, status: 'taken', by: 'elder' }) }))
@@ -62,11 +72,7 @@ function dayStats(c, i) {
   doses(c, dt).forEach(d => { if (i === 0 && tm(d.t) > nowM()) return; b++; if (status(d, dt) === 'taken') a++ })
   return { dt, a, b }
 }
-function adherence(c) {
-  let tt = 0, tk = 0; const days = []
-  for (let i = 6; i >= 0; i--) { const s = dayStats(c, i); tt += s.b; tk += s.a; days.push({ ...s, l: new Date(s.dt + 'T00:00').toLocaleDateString([], { weekday: 'short' }) }) }
-  return { pct: tt ? Math.round(tk / tt * 100) : 100, days }
-}
+const adherence = c => calculateAdherence(c, new Date())
 function streak(c) {
   let n = 0
   for (let i = 0; i < 60; i++) { const s = dayStats(c, i); if (!s.b) { if (i === 0) continue; break } if (s.a === s.b) n++; else if (i === 0) continue; else break }
@@ -79,7 +85,7 @@ function insight(c) {
   return w && w[1][0] ? `${w[0]} doses are missed most often (${w[1][0]} of ${w[1][1]} this week). A phone alarm or a family call at that time may help.` : 'No pattern of missed doses this week. Keep it up!'
 }
 const latest = (c, k) => c.vitals.filter(v => v.kind === k).sort((a, b) => a.date.localeCompare(b.date))
-const daysLeft = m => m.stock == null ? null : Math.floor(m.stock / (m.times.length || 1))
+const daysLeft = getDaysLeft
 function answer(c, q) {
   const date = dstr(new Date()), ds = doses(c, date)
   if (/(should|can i|change|stop|skip|increase|reduce|double)/.test(q) && /(dose|dosage|tablet|pill|medicine|more|less|double|stop|skip)/.test(q))
