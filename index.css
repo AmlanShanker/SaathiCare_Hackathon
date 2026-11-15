@@ -111,3 +111,97 @@ a.call{display:inline-flex;align-items:center;min-height:56px;padding:.4rem 1.2r
 .vh{position:absolute;left:-9999px}
 @media(max-width:700px){.bento,.grid{grid-template-columns:1fr}.hero h2{font-size:1.9rem}h1{font-size:1.8rem}.top .who{display:none}.dock button{min-width:54px;padding:.2rem .3rem}}
 @media print{.top,.dock,.noprint,#toast,.drawer-wrap{display:none!important}body{background:#fff;color:#000}body::before{display:none}.card{box-shadow:none;border:1px solid #999;background:#fff;break-inside:avoid}}
+
+/* ===== SaathiCare Sun Arc Visualization Fix ===== */
+
+.arc {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  overflow: visible;
+}
+
+.arc-track {
+  fill: none !important;
+  stroke: rgba(180, 170, 255, 0.55);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.sunmark {
+  fill: #FFD166;
+  stroke: #FFFFFF;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px #FFD166);
+}
+
+.dot {
+  stroke: rgba(255,255,255,0.9);
+  stroke-width: 2;
+}
+
+.dot.d-taken {
+  fill: #22C99A;
+}
+
+.dot.d-missed {
+  fill: #FF647C;
+}
+
+.dot.d-due {
+  fill: #FFB547;
+}
+
+.dot.d-snoozed {
+  fill: #A78BFA;
+}
+
+.dot.d-upcoming {
+  fill: #64748B;
+}
+
+.dglyph {
+  fill: #17122F;
+  font-size: 12px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.arc-n {
+  fill: var(--ink);
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.arc-l {
+  fill: var(--mute);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pulse {
+  fill: none;
+  stroke: #FFB547;
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sunPulse 1.5s ease-out infinite;
+}
+
+@keyframes sunPulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
