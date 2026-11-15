@@ -55,18 +55,8 @@ function seed() {
   c.meds.forEach(m => m.times.forEach(t => { if (tm(t) + 30 < nowM()) c.log.push({ key: `${m.id}|${d}|${t}`, status: 'taken', by: 'elder' }) }))
   return c
 }
-const doses = (c, date) => c.meds.filter(m => !m.since || m.since <= date).flatMap(m => m.times.map(t => {
-  const key = `${m.id}|${date}|${t}`
-  return { m, t, key, e: c.log.find(l => l.key === key) }
-})).sort((a, b) => a.t.localeCompare(b.t))
-function status(d, date) {
-  if (d.e?.status === 'taken') return 'taken'
-  if (d.e?.status === 'missed') return 'missed'
-  if (date < dstr(new Date())) return 'missed'
-  const n = nowM()
-  if (d.e?.status === 'snoozed' && n < d.e.until) return 'snoozed'
-  return n >= tm(d.t) ? 'due' : 'upcoming'
-}
+const doses = buildDoseSchedule
+const status = (dose, date) => getDoseStatus(dose, date, new Date())
 function dayStats(c, i) {
   const dt = ago(i); let a = 0, b = 0
   doses(c, dt).forEach(d => { if (i === 0 && tm(d.t) > nowM()) return; b++; if (status(d, dt) === 'taken') a++ })
