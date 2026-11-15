@@ -45,7 +45,7 @@ The test suite exercises the medication schedule, dose-status transitions, adher
 
 ## Email configuration
 
-Set `RESEND_API_KEY` and (optionally) `MAIL_FROM` in Vercel Project Settings → Environment Variables. Never put the API key in a `VITE_*` variable or client-side source. Email sending requires a sender address permitted by your Resend account; a verified domain is recommended for production.
+Set `RESEND_API_KEY`, `APP_ORIGIN=https://saathicare-five.vercel.app` and (optionally) `MAIL_FROM` in Vercel Project Settings → Environment Variables. The notification endpoint validates the request origin, recipient addresses and message size, and applies a per-instance rate limit. Never put the API key in a `VITE_*` variable or client-side source. Email sending requires a sender address permitted by your Resend account; a verified domain is recommended for production.
 
 ## Important prototype limitations
 
