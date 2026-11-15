@@ -205,3 +205,25 @@ a.call{display:inline-flex;align-items:center;min-height:56px;padding:.4rem 1.2r
     animation: none;
   }
 }
+
+
+/* Readability and interaction polish */
+:root { font-size: 18px; }
+body { line-height: 1.6; letter-spacing: .005em; }
+p { max-width: 72ch; }
+h1 { letter-spacing: -.025em; font-weight: 800; }
+h2, h3 { letter-spacing: -.015em; }
+button, input, select { line-height: 1.35; }
+button:disabled { cursor: not-allowed; opacity: .55; transform: none; box-shadow: none; }
+input::placeholder { color: var(--mute); opacity: .85; }
+.card :focus-visible, form :focus-visible { outline-offset: 3px; }
+@media (max-width: 700px) {
+  .wrap { padding: .85rem; }
+  .card { border-radius: 22px; padding: 1.05rem; }
+  .hero { gap: 1rem; padding: 1.1rem; }
+  .hero-body { min-width: 0; }
+  .dock { bottom: calc(8px + env(safe-area-inset-bottom,0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
