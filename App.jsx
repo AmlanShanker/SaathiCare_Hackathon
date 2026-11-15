@@ -233,7 +233,7 @@ export default function App() {
   const saveMed = e => {
     e.preventDefault()
     const f = new FormData(e.target), times = f.get('times').split(',').map(s => s.trim()).filter(Boolean)
-    if (!times.length || times.some(x => !/^([01]\d|2[0-3]):[0-5]\d$/.test(x))) return toast('Enter times like 08:00, 20:00 (24-hour)')
+    if (!validateMedicationTimes(times)) return toast('Enter times like 08:00, 20:00 (24-hour)')
     const old = c.meds.find(x => x.id === edit)
     const m = { id: edit || 'm' + Date.now(), name: f.get('name'), dose: f.get('dose'), times, notes: f.get('notes'), food: f.get('food'), color: f.get('color') || 'white', stock: f.get('stock') === '' ? null : +f.get('stock'), since: old?.since || today }
     mut(y => { const i = y.meds.findIndex(x => x.id === m.id); i < 0 ? y.meds.push(m) : (y.meds[i] = m); y.sent = y.sent.filter(k => k !== 'refill|' + m.id); act(y, `${i < 0 ? 'added' : 'updated'} ${m.name}`) })
