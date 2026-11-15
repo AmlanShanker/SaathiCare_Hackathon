@@ -1,36 +1,68 @@
-# SaathiCare: your health, your family, one connected care system
+# SaathiCare — Elder-first care coordination
 
-Elder-first healthcare companion for Catalyst x PromptWars (Elderly Care & Assisted Living).
+SaathiCare is a hackathon prototype for an elderly person, their family and a caretaker to coordinate medication schedules, appointments, check-ins and care alerts.
 
-**Live:** add your Vercel URL here  |  **Demo passcodes:** elder `1111`, family `2222`, caretaker `3333`
+**Live demo:** https://saathicare-five.vercel.app/  
+**Repository:** https://github.com/AmlanShanker/SaathiCare_Hackathon
 
-## Features
-- **Passcode access, three roles** (elder, family, caretaker) sharing one care circle
-- **Sun-path dose dial**: the day as an arc with each dose as a dot (taken, due, missed), pulsing when due
-- **Elder-first Today screen**: big "I took it", snooze, read aloud, A+ text size, Hindi/English switch, daily mood check-in
-- **Medicines**: multiple daily times, with/before/after food, pill colour, pill count with refill alerts
-- **Vitals**: log blood pressure, sugar, pulse and weight with trend lines; out-of-range readings alert family (information only)
-- **Health card and emergency contacts**: one-tap call buttons appear after SOS, plus ambulance 108
-- **Family messages**: family sends a short note that shows on the elder's Today screen until acknowledged
-- **Email reminders** (Resend): dose due soon, missed dose, low stock, appointment within 24 hours, SOS, "not feeling well", flagged vitals; each sent once, with a visible email log
-- **Insights**: 7-day adherence, streak, which time of day is missed most
-- **Doctor-visit summary**: printable page (medicines, adherence, readings, health card)
-- **Care assistant** with voice input; answers from recorded data and never changes doses
+## Demo access
 
-## Stack
-React 18 + Vite, Vercel serverless function (`api/notify.js`), Resend for email, browser localStorage for data.
+- Elder: `1111`
+- Family: `2222`
+- Caretaker: `3333`
 
-## Run
-`npm install && npm run dev`. Deploy by importing the repo on Vercel (Vite is auto-detected). Set `RESEND_API_KEY` (optional `MAIL_FROM`) in Vercel for real emails; without it alerts show as "Queued (demo mode)".
+These are demo credentials only. Do not use them for real patient information.
 
-## 3-minute demo script
-1. Enter `3333` (caretaker), Health: log blood pressure 165/98 (family is alerted). Medicines: add a medicine due 2 minutes from now with 4 pills left (refill alert).
-2. Open a second tab with `1111` (elder). When due, tap Taken or Snooze.
-3. As caretaker send a message; as elder tap Got it, tap Not well, press SOS and see call buttons. Check the Email log on Overview.
-4. Ask the assistant "when is my next dose?" then "should I change my dose?"
+## What the prototype demonstrates
 
-## Limits and next steps
-Data lives in browser localStorage. Next: Supabase for sync across devices, and a cron job so reminders go out when no one has the app open.
+- Three role-based views for an elder, family member and caretaker.
+- Medication schedules, dose status, snooze and adherence summaries.
+- Appointment planning and reminders.
+- Health readings, emergency contacts and mood check-ins.
+- Family messages, care activity and an in-app email event log.
+- English/Hindi labels, read-aloud support and larger-text mode.
+- A rule-based care assistant that answers from recorded information and directs medication-change questions to a clinician.
 
-## LinkedIn post template
-Built SaathiCare in a few hours for the Catalyst hackathon by @Makers Need More (MnM) and PromptWars: an elder-first care circle where seniors, family and caretakers share medicine schedules, appointments and missed-dose alerts. Problem: Elderly Care & Assisted Living. Live: <url> Code: <repo> #Catalyst #PromptWars #MnM
+## Technology
+
+React 18, Vite 5, CSS, browser `localStorage`, and a Vercel serverless email endpoint using Resend when configured.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+## Quality checks
+
+```bash
+npm test
+npm run build
+```
+
+The test suite exercises the medication schedule, dose-status transitions, adherence calculation, time validation, stock estimates and vital-reading flags. GitHub Actions runs the tests and production build on pushes and pull requests.
+
+## Email configuration
+
+Set `RESEND_API_KEY` and (optionally) `MAIL_FROM` in Vercel Project Settings → Environment Variables. Never put the API key in a `VITE_*` variable or client-side source. Email sending requires a sender address permitted by your Resend account; a verified domain is recommended for production.
+
+## Important prototype limitations
+
+- Care-circle data is stored in the current browser's `localStorage`. It is not synchronised across devices or users, and clearing browser storage can erase it.
+- Demo vitals and historical adherence entries are synthetic sample data, not real clinical measurements.
+- The passcodes are demo access gates, not production authentication. This prototype must not be used to store real patient data or make clinical decisions.
+- Email reminders run while the app is open; dependable background reminders require a scheduled server-side job and persistent shared storage.
+- The care assistant is rule-based and informational, not a medical professional or diagnostic system.
+
+## Demo walkthrough
+
+1. Sign in as caretaker (`3333`) and review the care circle.
+2. Inspect the medicine schedule, adherence summary and sample health readings.
+3. Switch to the elder view (`1111`) to mark a dose, snooze a reminder or use read-aloud.
+4. Return to the caretaker view to review activity, messages and the email event log.
+5. Try a medication-change question in the care assistant to see its safety boundary.
+
+## Accessibility and design
+
+The interface uses Atkinson Hyperlegible, responsive layouts, large touch targets, visible keyboard focus, labelled form fields, reduced-motion handling and an optional larger-text mode.
