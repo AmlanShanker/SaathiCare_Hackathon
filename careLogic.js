@@ -5,14 +5,14 @@ export function dateKey(date) {
 }
 
 export function timeToMinutes(time) {
-  if (typeof time !== 'string' || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)) return NaN
+  if (typeof time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return NaN
   const [hours, minutes] = time.split(':').map(Number)
   return hours * 60 + minutes
 }
 
 export function validateMedicationTimes(times) {
   return Array.isArray(times) && times.length > 0 &&
-    times.every(time => typeof time === 'string' && /^([01]\\d|2[0-3]):[0-5]\\d$/.test(time.trim()))
+    times.every(time => typeof time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(time.trim()))
 }
 
 export function buildDoseSchedule(careCircle, date) {
