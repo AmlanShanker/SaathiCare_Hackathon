@@ -1,4 +1,4 @@
-const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const rateLimit = new Map()
 const WINDOW_MS = 60_000
 const MAX_REQUESTS = 10
